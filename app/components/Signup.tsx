@@ -68,6 +68,7 @@ export const Signup: React.FC = () => {
       const result = await response.json();
 
       if (!response.ok) {
+        setLoading(false);
         setErrorMessages([result.message]);
       } else {
         setLoading(false);
