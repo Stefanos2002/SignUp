@@ -1,13 +1,11 @@
 "use client"; // Ensure this component is treated as a Client Component
 import { FormEvent, useState } from "react";
 import bcrypt from "bcryptjs";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export const Signup: React.FC = () => {
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -86,7 +84,6 @@ export const Signup: React.FC = () => {
 
   return (
     <div className="flex items-center flex-col overflow-auto fixed justify-center w-full h-screen bg-neutral-400 bg-cover">
-      {loading && <p>Loading, please wait...</p>}
       <form
         onSubmit={handleSubmit}
         className="flex flex-col xl:w-2/6 md:w-1/2 w-3/5 relative  bg-neutral-200 border rounded-lg border-black max-[500px]:w-5/6"
@@ -137,6 +134,13 @@ export const Signup: React.FC = () => {
                 <li key={index}>{message}</li>
               ))}
             </ul>
+          </div>
+        )}
+        {loading && (
+          <div className="flex mb-8 items-center justify-center">
+            <p className="bg-neutral-400 rounded-md p-4">
+              Loading, please wait...
+            </p>
           </div>
         )}
         <div className="flex-grow ">

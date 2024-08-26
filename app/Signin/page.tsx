@@ -6,6 +6,8 @@ import Link from "next/link";
 
 export default function Signin() {
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+
   const router = useRouter();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -13,32 +15,10 @@ export default function Signin() {
     setErrorMessages([]); // Clear previous errors
 
     const formData = new FormData(event.target as HTMLFormElement);
-    const username = formData.get("username") as string;
     const email = formData.get("email") as string;
     let password = formData.get("password") as string;
-    let passwordre = formData.get("passwordre") as string;
 
     const errors: string[] = [];
-
-    // Username validation
-    const usernameRegex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d\W]{10,}$/;
-    if (!usernameRegex.test(username)) {
-      errors.push(
-        "Username must be at least 10 characters long, contain at least one capital letter, one number, and may include symbols."
-      );
-    }
-
-    // Password validation
-    const passwordRegex = /^(?=.*[A-Z])[A-Za-z\d\W]{10,}$/;
-    if (!passwordRegex.test(password)) {
-      errors.push(
-        "Password must be at least 10 characters long, contain at least one capital letter, and may include symbols."
-      );
-    }
-
-    if (password !== passwordre) {
-      errors.push("Passwords do not match");
-    }
 
     if (errors.length > 0) {
       setErrorMessages(errors);
@@ -46,17 +26,18 @@ export default function Signin() {
     }
 
     // Hash the password using bcrypt
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // const hashedPassword = await bcrypt.hash(password, 10);
 
     const data = {
-      username,
       email,
-      password: hashedPassword,
+      password,
     };
+
+    setLoading(true);
 
     try {
       // Send a POST request to your API route
-      const response = await fetch("/api/users", {
+      const response = await fetch("/api/users/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -67,15 +48,15 @@ export default function Signin() {
       const result = await response.json();
 
       if (!response.ok) {
+        setLoading(false);
         setErrorMessages([result.message]);
       } else {
-        console.log("User added successfully, verification email sent.");
-        alert(
-          "A verification email has been sent to your email address. Please check your inbox."
-        );
+        console.log("User credentials OK.");
+        router.push("/Home");
       }
     } catch (error) {
-      console.error("Error during user addition:", error);
+      setLoading(false);
+      console.error("Error during credentials' check:", error);
       setErrorMessages(["An unexpected error occurred"]);
     }
   };
@@ -87,16 +68,7 @@ export default function Signin() {
         className="flex flex-col xl:w-2/6 md:w-1/2 w-3/5 relative  bg-neutral-200 border rounded-lg border-black max-[500px]:w-5/6"
       >
         <div className="bg-black flex items-center justify-center rounded-t-md p-5">
-          <h1 className="sm:text-5xl text-3xl text-white">Sign-Up</h1>
-        </div>
-        <div className="flex flex-col w-full items-center mt-12 gap-2">
-          <label className="sm:text-xl text-md">Username</label>
-          <input
-            type="text"
-            name="username"
-            className="border-2 border-black sm:p-2 p-1 rounded-lg"
-            required
-          />
+          <h1 className="sm:text-5xl text-3xl text-white">Sign-In</h1>
         </div>
         <div className="flex flex-col w-full items-center sm:mt-6 mt-4 gap-2">
           <label className="sm:text-xl text-md">Email</label>
@@ -107,20 +79,11 @@ export default function Signin() {
             required
           />
         </div>
-        <div className="flex flex-col w-full items-center sm:mt-6 mt-4 gap-2">
+        <div className="flex mb-12 flex-col w-full items-center sm:mt-6 mt-4 gap-2">
           <label className="sm:text-xl text-md">Password</label>
           <input
             type="password"
             name="password"
-            className="border-2 border-black sm:p-2 p-1 rounded-lg"
-            required
-          />
-        </div>
-        <div className="flex flex-col w-full items-center mb-12 sm:mt-6 mt-4 gap-2">
-          <label className="sm:text-xl text-md">Re-enter Password</label>
-          <input
-            type="password"
-            name="passwordre"
             className="border-2 border-black sm:p-2 p-1 rounded-lg"
             required
           />
@@ -134,6 +97,13 @@ export default function Signin() {
             </ul>
           </div>
         )}
+        {loading && (
+          <div className="flex mb-8 items-center justify-center">
+            <p className="bg-neutral-400 rounded-md p-4">
+              Loading, please wait...
+            </p>
+          </div>
+        )}
         <div className="flex-grow ">
           <button
             type="submit"
@@ -145,7 +115,7 @@ export default function Signin() {
       </form>
       <div className="mt-4">
         <Link
-          href="/Signin"
+          href="/"
           className="hover:text-indigo-800 hover:underline text-lg"
         >
           Don't have an account? Click here to sign-up

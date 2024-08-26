@@ -1,6 +1,7 @@
 import { Collection, Db, MongoClient } from "mongodb";
 import clientPromise from "../../lib/mongo/page";
 import crypto from "crypto";
+import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 
 interface User {
@@ -130,7 +131,7 @@ const checkUserExists = async (username: string, email: string) => {
   }
 };
 
-//this function is being called in the api
+//this function is being called in the api (signup)
 export const verifyUserEmail = async (token: string) => {
   if (!users) await init();
   if (!users) throw new Error("Users collection is not initialized");
@@ -155,5 +156,34 @@ export const verifyUserEmail = async (token: string) => {
   } catch (error) {
     console.error("Error verifying email:", error);
     return { status: 500, message: "Error verifying email" };
+  }
+};
+
+export const logUser = async (email: string, password: string) => {
+  if (!users) await init();
+  if (!users) throw new Error("Users collection is not initialized");
+
+  try {
+    const user = await users.findOne({ email });
+
+    if (!user) {
+      return { status: 400, message: "User does not exist" };
+    }
+
+    // Check if the user's email is verified
+    if (!user.isVerified) {
+      return { status: 400, message: "Email is not verified" };
+    }
+
+    // Compare the hashed password with the plain-text password
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    if (!isPasswordCorrect) {
+      return { status: 400, message: "Username or password is incorrect" };
+    }
+
+    return { status: 200, message: "User logged in successfully!" };
+  } catch (error) {
+    console.error("Error verifying user:", error);
+    return { status: 500, message: "Error verifying user" };
   }
 };

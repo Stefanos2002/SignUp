@@ -9,7 +9,7 @@ export default function Verified() {
   useEffect(() => {
     // Redirect to the Home page after 3 seconds
     const timeoutId = setTimeout(() => {
-      router.push("/Home");
+      router.push("/Signin");
     }, 3000);
 
     return () => clearTimeout(timeoutId); // Cleanup the timeout on component unmount
@@ -18,7 +18,7 @@ export default function Verified() {
     <>
       <div className="flex w-full h-screen items-center justify-center">
         <span className="text-lg rounded-xl p-6 w-72 items-center bg-neutral-300 text-black">
-          Email was verified. Navigating you to Home...
+          Email was verified. Navigating you to Sign-in...
         </span>
       </div>
     </>
