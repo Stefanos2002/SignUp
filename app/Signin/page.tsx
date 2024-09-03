@@ -1,4 +1,6 @@
 "use client"; // Ensure this component is treated as a Client Component
+import { FaGoogle, FaGithub } from "react-icons/fa";
+import { signIn } from "next-auth/react";
 import { FormEvent, useState } from "react";
 import bcrypt from "bcryptjs";
 import { useRouter } from "next/navigation";
@@ -86,6 +88,18 @@ export default function Signin() {
             name="password"
             className="border-2 border-black sm:p-2 p-1 rounded-lg"
             required
+          />
+        </div>
+        <div className="flex flex-row gap-8 mt-2 justify-center">
+          <FaGithub
+            size={40}
+            onClick={() => signIn("github", { callbackUrl: "/Home" })}
+            className="cursor-pointer"
+          />
+          <FaGoogle
+            size={40}
+            onClick={() => signIn("google", { callbackUrl: "/Home" })}
+            className="cursor-pointer"
           />
         </div>
         {errorMessages.length > 0 && (
